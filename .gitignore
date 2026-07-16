@@ -1,0 +1,20 @@
+# Build output
+bin/
+obj/
+
+# IDE / user-specific
+.vs/
+.vscode/
+.idea/
+*.user
+
+# macOS
+.DS_Store
+
+# SQLite (Phase 3 of the plan)
+*.db
+*.db-shm
+*.db-wal
+
+# Local media — sample videos don't belong in git
+videos/
