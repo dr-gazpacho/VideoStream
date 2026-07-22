@@ -126,3 +126,104 @@ developer runs into this exactly once.
 - An `?include=` query param that sideloads channels with shows in one response — mirrors
   `SideLoadedBundle` and `[ApiSupportsSideloading]`.
 - OpenAPI descriptions on actions — mirrors the XML doc comments Cablecast feeds Swashbuckle.
+
+---
+
+# Part 2 — React Router frontend + HLS bitrate ladder
+
+Checklist format; each item is small enough to finish in a sitting. Hints, not code.
+Milestones C–E assume Phases 1–3 from Part 1 are done (controllers + EF); A and B don't.
+
+## Milestone A — two apps, one repo
+
+- [ ] Reshuffle: move the .NET project into `api/` (`mkdir api && git mv *.csproj Program.cs
+      Properties appsettings*.json wwwroot VideoStream.http api/` — plus `videos/` if you want
+      it inside). Verify `dotnet run` still works from `api/` before touching anything else.
+- [ ] Spin up a new React Router app: `npx create-react-router@latest web`.
+      When prompted, plain TypeScript template, no deployment adapter.
+- [x] Decision made: **SSR mode** (the default, `ssr: true`). The Node server calls the .NET
+      API for data — same topology as ccs-remix. Two kinds of traffic follow from this:
+      *data* goes browser → Node → .NET (loaders run in Node); *media* goes browser → .NET
+      directly (hls.js and `<video>` run in the browser — don't route video bytes through Node).
+- [ ] Verify both apps run side by side: `dotnet run` in `api/` (port 5129) and
+      `npm run dev` in `web/` (port 5173).
+- [ ] Configure the API base URL for server-side fetches: an env var (e.g. `API_URL=http://localhost:5129`
+      via `.env`), read with `process.env.API_URL` inside loaders. Server-side fetch has no
+      origin, so relative URLs like `/v1/...` don't work there — absolute only.
+- [ ] Prove the seam: in a route's `loader` (not `clientLoader` — that's the SPA-mode variant),
+      `fetch(`${process.env.API_URL}/v1/weatherforecast`)` and render the result. Concept
+      check: view-source on :5173 should show the forecast data already in the HTML — that's
+      SSR doing its job before the browser saw anything.
+- [ ] CORS on the API for the browser-direct traffic (media, and later uploads):
+      `AddCors` + `UseCors` in `Program.cs` with a dev policy allowing `http://localhost:5173`.
+      (Alternative for dev only: Vite proxy `/v1` → :5129. CORS is the more transferable
+      lesson — you'll need it in prod regardless, since browser and API are different origins.)
+
+## Milestone B — port the drop zone to React
+
+- [ ] Rebuild the drop zone as a component. Everything you learned transfers: same
+      `dragover`/`drop` events (as `onDragOver`/`onDrop` props), same `DataTransfer` API.
+      Files go in `useState`; object URLs still need revoking (`useEffect` cleanup).
+- [ ] Keep the a11y properties of the label+input pattern (keyboard/screen-reader path
+      to the file picker), and keep the video sizing lesson — style the preview `<video>`
+      from day one.
+
+## Milestone C — upload for real
+
+- [ ] API: `POST /v1/videos` controller action taking `IFormFile`, saving to
+      `videos/source/`, inserting a Show row with `Status = Pending`.
+      Gotcha: multipart request size limits — you'll hit the ~28 MB default with real
+      videos; look up `[RequestSizeLimit]` / `FormOptions.MultipartBodyLengthLimit`.
+- [ ] Frontend: on drop, `FormData` + `fetch POST` (you know this part). Decision point in
+      SSR mode: post the file from the browser straight to the .NET API (simple, needs the
+      CORS setup from Milestone A), or through a React Router `action` that forwards it
+      (teaches actions, but streams every upload byte through Node). Start browser-direct.
+- [ ] Show the pending/ready state in the UI — a `loader` fetching the show list, revalidated
+      after upload.
+
+## Milestone D — single-rung HLS, end to end
+
+Get ONE rendition playing before building the ladder. Every later step is debuggable
+only if this works.
+
+- [ ] By hand first: run ffmpeg on a source video to produce HLS —
+      one `.m3u8` playlist + `.ts` segments in `videos/hls/<id>/`.
+      (Look up `-f hls`, `-hls_time`, `-hls_playlist_type vod`. Inspect the playlist in a
+      text editor — it's human-readable and worth actually reading.)
+- [ ] Make the fake-transcode `BackgroundService` from Phase 6 real: `Process.Start`
+      ffmpeg per Pending show, flip to `Ready` on exit code 0, `Failed` otherwise.
+- [ ] Serve the HLS output. Static-file middleware pointed at `videos/hls` works, but the
+      defaults don't know HLS types — you need a `FileExtensionContentTypeProvider` with
+      `.m3u8` → `application/vnd.apple.mpegurl` and `.ts` → `video/mp2t`.
+      (No range processing needed — HLS segments are fetched whole; that's the point.)
+- [ ] Frontend player: `npm install hls.js`, wire it to a `<video>` in a player component
+      (`new Hls()`, `loadSource(manifestUrl)`, `attachMedia(video)`). Safari quirk: it plays
+      HLS natively — check `video.canPlayType("application/vnd.apple.mpegurl")` first.
+- [ ] Watch the Network tab while playing: playlist first, then segments trickling in.
+      That waterfall IS streaming — make sure it matches your mental model before moving on.
+
+## Milestone E — the bitrate ladder
+
+- [ ] Extend the ffmpeg command to 2–3 rungs (e.g. 1080p/5M, 720p/2.8M, 480p/1.2M) with a
+      master playlist. Look up `-var_stream_map` + `-master_pl_name`; expect this command to
+      take a few iterations — it's everyone's least favorite ffmpeg incantation.
+- [ ] Point hls.js at the master playlist instead of a variant. It reads the rung list and
+      switches by measured bandwidth automatically — that's ABR (adaptive bitrate).
+- [ ] See it work: devtools → Network → throttle to "Fast 4G" mid-playback and watch the
+      segment requests drop to a lower rung.
+- [ ] Quality selector UI: hls.js exposes `hls.levels` and `hls.currentLevel` — build a
+      small menu (keyboard-accessible) that pins a rung or returns to auto.
+
+## Milestone F (stretch) — distro
+
+SSR mode means production is two processes, not one — the wwwroot single-artifact trick
+only works for SPA builds. This mirrors how ccs-remix ships (Node server on Heroku,
+services beside it).
+
+- [ ] `npm run build` in `web/`, then run the built output with `npm run start`
+      (`react-router-serve ./build/server/index.js`) against a running API — no Vite
+      anywhere. `API_URL` must be set in the Node server's environment.
+- [ ] Make sure you can narrate the prod request flow: browser hits Node for pages/data,
+      .NET for media; nothing in the system serves the other's traffic.
+- [ ] (Optional) One command to rule them all: a root-level script (or `Procfile`-style
+      runner like `concurrently`) that starts both processes.

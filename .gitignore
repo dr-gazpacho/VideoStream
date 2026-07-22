@@ -18,3 +18,9 @@ obj/
 
 # Local media — sample videos don't belong in git
 videos/
+
+# Node / React Router (web/)
+.env
+node_modules/
+web/.react-router/
+web/build/
