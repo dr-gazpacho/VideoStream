@@ -1,4 +1,4 @@
-import { PathConfig } from "~/types";
+import type { PathConfig } from "../types";
 import { NavLink } from "react-router";
 
 export const NavBar: React.FC = () => {
