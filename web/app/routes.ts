@@ -4,5 +4,6 @@ export default [
   index("routes/home.tsx"),
   route("about", "./routes/about.tsx"),
   route("widget", "./routes/widget.tsx"),
+  route("video-upload", "./routes/video-upload.tsx"),
   route(".well-known/*", "./routes/well-known.ts"),
 ] satisfies RouteConfig;
