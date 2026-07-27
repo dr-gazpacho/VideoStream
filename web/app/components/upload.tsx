@@ -28,3 +28,4 @@ export const Upload: React.FC = () => {
 // to do: read and print some video and audio data? maybe generate some thumbnails?
 // big work is now that you have an instance of input, what do you do with it?
 // eventually work toward a media player OR subtitles adder OR transcoder?
+// something
