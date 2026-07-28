@@ -1,3 +1,3 @@
-export default function AboutPage(): React.FC {
+export default function AboutPage() {
   return <>A Fragment that will eventually contain an about page</>;
 }
