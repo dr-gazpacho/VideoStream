@@ -1,5 +1,5 @@
 import React from "react";
-import type { VideoMetadata } from "./upload";
+import type { VideoMetadata } from "~/context/media-context";
 
 interface ReadMetadataProps {
   metadata: VideoMetadata | null;

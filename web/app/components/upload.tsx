@@ -6,22 +6,7 @@ import {
   type AudioCodec,
   type VideoCodec,
 } from "mediabunny";
-import { useMediaLibrary } from "~/context/media-context";
-
-// Expanded Video Metadata Contract
-export interface VideoMetadata {
-  input: Input;
-  duration: number;
-  name: string;
-  size: number;
-  // Visual & Audio Specs
-  dimensions?: { width: number; height: number };
-  rotation?: number;
-  videoCodec?: VideoCodec | null;
-  audioCodec?: AudioCodec | null;
-  hasAudio: boolean;
-  hasVideo: boolean;
-}
+import { useMediaLibrary, type VideoMetadata } from "~/context/media-context";
 
 interface UploadProps {
   onVideoProcessed: (data: VideoMetadata) => void;
@@ -40,6 +25,19 @@ export function Upload({ onVideoProcessed }: UploadProps) {
     setLoading(true);
 
     try {
+      // Pass raw file and metadata builder to context (stores in IndexedDB & state)
+      await addClip(file, (input) => {
+        // We'll compute metadata synchronously/asynchronously inside or alongside
+        return {
+          name: file.name,
+          size: file.size,
+          duration: 0, // Fallback until computed
+          hasVideo: false,
+          hasAudio: false,
+        };
+      });
+
+      // Compute detailed metadata using Mediabunny
       const input = new Input({
         source: new BlobSource(file),
         formats: ALL_FORMATS,
@@ -50,7 +48,7 @@ export function Upload({ onVideoProcessed }: UploadProps) {
 
       let dimensions;
       let rotation;
-      let videoCodec;
+      let videoCodec: VideoCodec | null = null;
 
       if (videoTrack) {
         const [width, height] = await Promise.all([
@@ -62,14 +60,14 @@ export function Upload({ onVideoProcessed }: UploadProps) {
         videoCodec = await videoTrack.getCodec();
       }
 
-      // 3. Inspect audio track specs
       const audioTrack = await input.getPrimaryAudioTrack();
-      let audioCodec;
+      let audioCodec: AudioCodec | null = null;
       if (audioTrack) {
         audioCodec = await audioTrack.getCodec();
       }
 
       const processedVideo: VideoMetadata = {
+        id: `temp_${Date.now()}`,
         input,
         duration: videoDuration,
         name: file.name,
@@ -83,28 +81,31 @@ export function Upload({ onVideoProcessed }: UploadProps) {
       };
 
       onVideoProcessed(processedVideo);
-      addClip(processedVideo);
     } catch (err) {
       console.error("Failed to inspect video metadata:", err);
     } finally {
       setLoading(false);
+      // Reset input value so user can upload the same file again if purged
+      event.target.value = "";
     }
   };
 
   return (
-    <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-md">
-      <label className="block text-xs font-mono uppercase text-zinc-400 mb-2">
-        Select Video File
+    <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-sm font-mono">
+      <label className="block text-xs uppercase text-zinc-400 mb-2 font-bold tracking-wider">
+        // Select Video File
       </label>
       <input
         type="file"
         accept="video/*"
         onChange={handleFileUpload}
-        className="block w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-zinc-950 hover:file:bg-amber-400 cursor-pointer"
+        disabled={loading}
+        className="block w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-xs file:border-0 file:text-xs file:font-bold file:uppercase file:bg-amber-500 file:text-zinc-950 hover:file:bg-amber-400 cursor-pointer disabled:opacity-50"
       />
       {loading && (
-        <p className="mt-2 text-xs text-amber-400 animate-pulse font-mono">
-          Analyzing tracks and codecs...
+        <p className="mt-2 text-xs text-amber-400 animate-pulse flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+          Analyzing tracks & persisting to IndexedDB...
         </p>
       )}
     </div>
