@@ -8,4 +8,20 @@
 
 html,
 body {
+  /* Pale dark-grey background & bright off-white default text */
+  background-color: var(--color-zinc-900);
+  color: var(--color-zinc-100);
+
+  /* Font & rendering defaults */
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  min-height: 100vh;
+  margin: 0;
+}
+
+::selection {
+  background-color: var(--color-amber-500);
+  color: var(--color-zinc-950);
 }
