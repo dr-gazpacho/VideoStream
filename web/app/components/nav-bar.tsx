@@ -8,7 +8,7 @@ export const NavBar: React.FC = () => {
   const paths: PathConfig[] = [
     { label: "Home", path: "/" },
     { label: "About", path: "/about" },
-    { label: "Widget", path: "/widget" },
+    { label: "Editor", path: "/editor" },
     { label: "Upload", path: "/video-upload" },
   ];
 

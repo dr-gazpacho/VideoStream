@@ -29,7 +29,7 @@ export function ReadMetadata({ metadata }: ReadMetadataProps) {
         </li>
         <li>
           <span className="text-zinc-400">Size:</span>{" "}
-          {(metadata.file.size / (1024 * 1024)).toFixed(2)} MB
+          {(metadata.size / (1024 * 1024)).toFixed(2)} MB
         </li>
       </ul>
     </div>

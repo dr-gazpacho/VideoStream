@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Input, BlobSource, ALL_FORMATS } from "mediabunny";
+import { useMediaLibrary } from "~/context/media-context";
 
 export interface VideoMetadata {
-  file: File;
+  input: Input;
   duration: number;
   name: string;
+  size: number;
 }
 
 interface UploadProps {
@@ -13,6 +15,7 @@ interface UploadProps {
 
 export function Upload({ onVideoProcessed }: UploadProps) {
   const [loading, setLoading] = useState(false);
+  const { addClip } = useMediaLibrary();
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -30,12 +33,16 @@ export function Upload({ onVideoProcessed }: UploadProps) {
 
       const videoDuration = await input.computeDuration();
 
-      // Pass the extracted metadata & original file up to parent
-      onVideoProcessed({
-        file,
+      const processedVideo = {
+        input,
         duration: videoDuration,
         name: file.name,
-      });
+        size: file.size,
+      };
+
+      // Pass the extracted metadata & original file up to parent
+      onVideoProcessed(processedVideo);
+      addClip(processedVideo);
     } catch (err) {
       console.error("Failed to inspect video:", err);
     } finally {
