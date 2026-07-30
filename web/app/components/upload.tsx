@@ -25,8 +25,7 @@ export function Upload({ onVideoProcessed }: UploadProps) {
     setLoading(true);
 
     try {
-      // Pass raw file and metadata builder to context (stores in IndexedDB & state)
-      await addClip(file, (input) => {
+      addClip(file, (input) => {
         // We'll compute metadata synchronously/asynchronously inside or alongside
         return {
           name: file.name,
@@ -66,8 +65,10 @@ export function Upload({ onVideoProcessed }: UploadProps) {
         audioCodec = await audioTrack.getCodec();
       }
 
+      const id = `temp_${Date.now()}`
+      
       const processedVideo: VideoMetadata = {
-        id: `temp_${Date.now()}`,
+        id,
         input,
         duration: videoDuration,
         name: file.name,
@@ -105,7 +106,7 @@ export function Upload({ onVideoProcessed }: UploadProps) {
       {loading && (
         <p className="mt-2 text-xs text-amber-400 animate-pulse flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-          Analyzing tracks & persisting to IndexedDB...
+          Analyzing tracks...
         </p>
       )}
     </div>
