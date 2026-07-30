@@ -1,33 +1,39 @@
-import { Input, ALL_FORMATS, BlobSource } from "mediabunny";
-import { useState } from "react";
+import React, { useState } from "react";
+import { Input, BlobSource, ALL_FORMATS } from "mediabunny";
 
-export const Upload: React.FC = () => {
-  const [file, setFile] = useState<File | undefined>(undefined);
-  const [input, setInput] = useState<Input<BlobSource> | null>(null);
+export function Upload() {
+  const [duration, setDuration] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  function handleUploadFile(event: React.ChangeEvent<HTMLInputElement>): void {
-    const uploadedFile = !!event?.target?.files && event.target.files[0];
-    if (uploadedFile && uploadedFile.type.startsWith("video")) {
-      const newInput = new Input({
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setLoading(true);
+
+    try {
+      // Async Mediabunny operations go here safely!
+      const input = new Input({
+        source: new BlobSource(file),
         formats: ALL_FORMATS,
-        source: new BlobSource(uploadedFile),
       });
-      setFile(uploadedFile);
-      setInput(newInput);
-    }
-  }
 
-  console.log(input)
+      const videoDuration = await input.computeDuration();
+      setDuration(videoDuration);
+    } catch (err) {
+      console.error("Failed to inspect video:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div>
-      <p>The Uploader</p>
-      <input type="file" id="input" onChange={handleUploadFile} />
+    <div className="p-4 bg-zinc-900 text-zinc-100 rounded-md">
+      <input type="file" accept="video/*" onChange={handleFileUpload} />
+      {loading && <p className="text-amber-400">Analyzing video...</p>}
+      {duration !== null && <p>Duration: {duration.toFixed(2)}s</p>}
     </div>
   );
-};
-
-// to do: read and print some video and audio data? maybe generate some thumbnails?
-// big work is now that you have an instance of input, what do you do with it?
-// eventually work toward a media player OR subtitles adder OR transcoder?
-// something
+}
