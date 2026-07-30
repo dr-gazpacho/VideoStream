@@ -1,12 +1,26 @@
 import React, { useState } from "react";
-import { Input, BlobSource, ALL_FORMATS } from "mediabunny";
+import {
+  Input,
+  BlobSource,
+  ALL_FORMATS,
+  type AudioCodec,
+  type VideoCodec,
+} from "mediabunny";
 import { useMediaLibrary } from "~/context/media-context";
 
+// Expanded Video Metadata Contract
 export interface VideoMetadata {
   input: Input;
   duration: number;
   name: string;
   size: number;
+  // Visual & Audio Specs
+  dimensions?: { width: number; height: number };
+  rotation?: number;
+  videoCodec?: VideoCodec | null;
+  audioCodec?: AudioCodec | null;
+  hasAudio: boolean;
+  hasVideo: boolean;
 }
 
 interface UploadProps {
@@ -32,19 +46,46 @@ export function Upload({ onVideoProcessed }: UploadProps) {
       });
 
       const videoDuration = await input.computeDuration();
+      const videoTrack = await input.getPrimaryVideoTrack();
 
-      const processedVideo = {
+      let dimensions;
+      let rotation;
+      let videoCodec;
+
+      if (videoTrack) {
+        const [width, height] = await Promise.all([
+          videoTrack.getDisplayWidth(),
+          videoTrack.getDisplayHeight(),
+        ]);
+        dimensions = { width, height };
+        rotation = videoTrack.rotation ?? 0;
+        videoCodec = await videoTrack.getCodec();
+      }
+
+      // 3. Inspect audio track specs
+      const audioTrack = await input.getPrimaryAudioTrack();
+      let audioCodec;
+      if (audioTrack) {
+        audioCodec = await audioTrack.getCodec();
+      }
+
+      const processedVideo: VideoMetadata = {
         input,
         duration: videoDuration,
         name: file.name,
         size: file.size,
+        dimensions,
+        rotation,
+        videoCodec,
+        audioCodec,
+        hasVideo: !!videoTrack,
+        hasAudio: !!audioTrack,
       };
 
-      // Pass the extracted metadata & original file up to parent
       onVideoProcessed(processedVideo);
       addClip(processedVideo);
     } catch (err) {
-      console.error("Failed to inspect video:", err);
+      console.error("Failed to inspect video metadata:", err);
     } finally {
       setLoading(false);
     }
@@ -63,7 +104,7 @@ export function Upload({ onVideoProcessed }: UploadProps) {
       />
       {loading && (
         <p className="mt-2 text-xs text-amber-400 animate-pulse font-mono">
-          Analyzing video track...
+          Analyzing tracks and codecs...
         </p>
       )}
     </div>
