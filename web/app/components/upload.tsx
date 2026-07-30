@@ -25,18 +25,6 @@ export function Upload({ onVideoProcessed }: UploadProps) {
     setLoading(true);
 
     try {
-      addClip(file, (input) => {
-        // We'll compute metadata synchronously/asynchronously inside or alongside
-        return {
-          name: file.name,
-          size: file.size,
-          duration: 0, // Fallback until computed
-          hasVideo: false,
-          hasAudio: false,
-        };
-      });
-
-      // Compute detailed metadata using Mediabunny
       const input = new Input({
         source: new BlobSource(file),
         formats: ALL_FORMATS,
@@ -65,11 +53,12 @@ export function Upload({ onVideoProcessed }: UploadProps) {
         audioCodec = await audioTrack.getCodec();
       }
 
-      const id = `temp_${Date.now()}`
-      
+      const id = `clip_${Date.now()}_${file.name}`;
+
       const processedVideo: VideoMetadata = {
         id,
         input,
+        file,
         duration: videoDuration,
         name: file.name,
         size: file.size,
@@ -81,6 +70,7 @@ export function Upload({ onVideoProcessed }: UploadProps) {
         hasAudio: !!audioTrack,
       };
 
+      addClip(processedVideo);
       onVideoProcessed(processedVideo);
     } catch (err) {
       console.error("Failed to inspect video metadata:", err);

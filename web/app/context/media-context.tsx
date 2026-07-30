@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState } from "react";
-import { Input, BlobSource, ALL_FORMATS } from "mediabunny";
-import type { AudioCodec, VideoCodec } from "mediabunny";
+import type { AudioCodec, Input, VideoCodec } from "mediabunny";
 
 export interface VideoMetadata {
   id: string;
   input: Input;
+  file: File;
   duration: number;
   name: string;
   size: number;
@@ -18,10 +18,7 @@ export interface VideoMetadata {
 
 interface MediaContextType {
   clips: VideoMetadata[];
-  addClip: (
-    file: File,
-    metaBuilder: (input: Input) => Omit<VideoMetadata, "id" | "input">,
-  ) => void;
+  addClip: (clip: VideoMetadata) => void;
   removeClip: (id: string) => void;
   clearAllClips: () => void;
 }
@@ -31,20 +28,8 @@ const MediaContext = createContext<MediaContextType | null>(null);
 export function MediaProvider({ children }: { children: React.ReactNode }) {
   const [clips, setClips] = useState<VideoMetadata[]>([]);
 
-  const addClip = (
-    file: File,
-    metaBuilder: (input: Input) => Omit<VideoMetadata, "id" | "input">,
-  ) => {
-    const id = `clip_${Date.now()}_${file.name}`;
-
-    const input = new Input({
-      source: new BlobSource(file),
-      formats: ALL_FORMATS,
-    });
-
-    const meta = metaBuilder(input);
-
-    setClips((prev) => [...prev, { ...meta, id, input }]);
+  const addClip = (clip: VideoMetadata) => {
+    setClips((prev) => [...prev, clip]);
   };
 
   const removeClip = (id: string) => {
