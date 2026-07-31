@@ -1,4 +1,5 @@
 import { useMediaLibrary } from "~/context/media-context";
+import { ReadMetadata } from "~/components/read-metadata";
 
 export function EditorPage() {
   const { clips } = useMediaLibrary();
@@ -10,14 +11,7 @@ export function EditorPage() {
       </h2>
       <div className="grid grid-cols-4 gap-4">
         {clips.map((clip) => (
-          <div
-            key={clip.name}
-            draggable
-            className="p-3 bg-zinc-900 border border-zinc-800 rounded text-xs text-zinc-300"
-          >
-            <p className="font-bold text-amber-500 truncate">{clip.name}</p>
-            <p className="text-zinc-500">{clip.duration.toFixed(1)}s</p>
-          </div>
+          <ReadMetadata metadata={clip} variant="small" />
         ))}
       </div>
     </div>

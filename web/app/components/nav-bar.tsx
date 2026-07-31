@@ -9,6 +9,7 @@ export const NavBar: React.FC = () => {
     { label: "Home", path: "/" },
     { label: "About", path: "/about" },
     { label: "Editor", path: "/editor" },
+    { label: "Converter", path: "/converter" },
     { label: "Upload", path: "/video-upload" },
   ];
 
