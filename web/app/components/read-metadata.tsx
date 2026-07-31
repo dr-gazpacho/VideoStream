@@ -4,12 +4,14 @@ interface ReadMetadataProps {
   metadata: VideoMetadata | null;
   withHeader?: boolean;
   variant: "large" | "small";
+  handleClick?: (arg: VideoMetadata) => void;
 }
 
 export function ReadMetadata({
   metadata,
   withHeader = true,
   variant,
+  handleClick,
 }: ReadMetadataProps) {
   if (!metadata) {
     return (
@@ -133,7 +135,9 @@ export function ReadMetadata({
       <div
         key={metadata.name}
         draggable
-        className="p-3 bg-zinc-900 border border-zinc-800 rounded text-xs text-zinc-300"
+        className="p-3 bg-zinc-900 border border-zinc-800 rounded text-xs text-zinc-300 hover:bg-zinc-700"
+        // this disgusting syntax... if there is no click handlder supplied, noop
+        onClick={() => handleClick?.(metadata)}
       >
         <p className="font-bold text-amber-500 truncate">{metadata.name}</p>
         <p className="text-zinc-500">{metadata.duration.toFixed(1)}s</p>
