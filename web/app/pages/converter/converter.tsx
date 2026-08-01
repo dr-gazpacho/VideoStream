@@ -2,6 +2,10 @@ import { useState } from "react";
 import { useMediaLibrary, type VideoMetadata } from "~/context/media-context";
 import { ReadMetadata } from "~/components/read-metadata";
 import { EmptyMediaLibrary } from "~/components/empty-media-library";
+import {
+  TranscodingProgressDisplay,
+  type TranscodingProgress,
+} from "~/components/transcoding-progress-display";
 import { createVideoMetadataFromFile } from "~/utils/metadata.util";
 import { Output, WebMOutputFormat, BufferTarget, Conversion } from "mediabunny";
 
@@ -12,6 +16,9 @@ export function ConverterPage() {
   const [convertedMetadata, setConvertedMetadata] =
     useState<VideoMetadata | null>(null);
   const [isConverting, setIsConverting] = useState(false);
+
+  const [transcodingProgress, setTranscodingProgress] =
+    useState<TranscodingProgress | null>(null);
 
   async function handleConversion(sourceMetadata: VideoMetadata) {
     setIsConverting(true);
@@ -31,9 +38,16 @@ export function ConverterPage() {
         return;
       }
 
+      conversion.onProgress = (progress, processedTime) => {
+        setTranscodingProgress({
+          time: processedTime,
+          percent: progress * 100,
+        });
+      };
+
       await conversion.execute();
 
-      // want to make a new instance of a File
+      // make a new instance of a File (and Input and Video Metadata) out of converted Input
       // get raw output buffer from BufferTarget
       const buffer = output.target.buffer;
       if (!buffer) throw new Error("Output buffer is empty");
@@ -82,8 +96,8 @@ export function ConverterPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Source Video Card */}
+      <div className="flex flex-row gap-4">
+        {/* source card */}
         {selectedMetadata && (
           <div className="space-y-2">
             <span className="text-xs font-mono uppercase text-zinc-500 font-bold block">
@@ -97,16 +111,22 @@ export function ConverterPage() {
           </div>
         )}
         {selectedMetadata && (
-          <button
-            onClick={() => handleConversion(selectedMetadata)}
-            disabled={isConverting}
-            className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-bold rounded-xs transition-colors disabled:opacity-50"
-          >
-            {isConverting ? "Converting..." : "Run simple conversion"}
-          </button>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => handleConversion(selectedMetadata)}
+              disabled={isConverting}
+              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-bold rounded-xs transition-colors disabled:opacity-50"
+            >
+              {isConverting ? "Converting..." : "Run simple conversion"}
+            </button>
+
+            {transcodingProgress && (
+              <TranscodingProgressDisplay progress={transcodingProgress} />
+            )}
+          </div>
         )}
 
-        {/* Converted Output Video Card */}
+        {/* converted card */}
         {convertedMetadata && (
           <div className="space-y-2">
             <span className="text-xs font-mono uppercase text-emerald-500 font-bold block">
