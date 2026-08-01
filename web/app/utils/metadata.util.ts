@@ -2,6 +2,10 @@ import {
   Input,
   BlobSource,
   ALL_FORMATS,
+  WebMOutputFormat,
+  Mp4OutputFormat,
+  MkvOutputFormat,
+  OggOutputFormat,
   type AudioCodec,
   type VideoCodec,
 } from "mediabunny";
@@ -55,3 +59,32 @@ export async function createVideoMetadataFromFile(
     isConvertedInBrowser: isConvertedInBrowser,
   };
 }
+
+export const SUPPORTED_OUTPUT_FORMATS = {
+  webm: {
+    label: "WebM Video (.webm)",
+    ext: "webm",
+    mime: "video/webm",
+    getFormat: () => new WebMOutputFormat(),
+  },
+  mp4: {
+    label: "MP4 Video (.mp4)",
+    ext: "mp4",
+    mime: "video/mp4",
+    getFormat: () => new Mp4OutputFormat(),
+  },
+  mkv: {
+    label: "Matroska Video (.mkv)",
+    ext: "mkv",
+    mime: "video/x-matroska",
+    getFormat: () => new MkvOutputFormat(),
+  },
+  ogg: {
+    label: "Ogg Video (.ogg)",
+    ext: "ogg",
+    mime: "video/ogg",
+    getFormat: () => new OggOutputFormat(),
+  },
+} as const;
+
+export type OutputFormatKey = keyof typeof SUPPORTED_OUTPUT_FORMATS;

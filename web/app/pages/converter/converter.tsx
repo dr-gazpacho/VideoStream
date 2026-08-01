@@ -2,12 +2,17 @@ import { useState } from "react";
 import { useMediaLibrary, type VideoMetadata } from "~/context/media-context";
 import { ReadMetadata } from "~/components/read-metadata";
 import { EmptyMediaLibrary } from "~/components/empty-media-library";
+import { FormatSelector } from "~/components/format-selector";
 import {
   TranscodingProgressDisplay,
   type TranscodingProgress,
 } from "~/components/transcoding-progress-display";
-import { createVideoMetadataFromFile } from "~/utils/metadata.util";
-import { Output, WebMOutputFormat, BufferTarget, Conversion } from "mediabunny";
+import {
+  createVideoMetadataFromFile,
+  SUPPORTED_OUTPUT_FORMATS,
+  type OutputFormatKey,
+} from "~/utils/metadata.util";
+import { Output, BufferTarget, Conversion } from "mediabunny";
 
 export function ConverterPage() {
   const { clips, addClip } = useMediaLibrary();
@@ -16,15 +21,20 @@ export function ConverterPage() {
   const [convertedMetadata, setConvertedMetadata] =
     useState<VideoMetadata | null>(null);
   const [isConverting, setIsConverting] = useState(false);
+  const [selectedFormat, setSelectedFormat] = useState<OutputFormatKey>("webm");
 
   const [transcodingProgress, setTranscodingProgress] =
     useState<TranscodingProgress | null>(null);
 
-  async function handleConversion(sourceMetadata: VideoMetadata) {
+  async function handleConversion(
+    sourceMetadata: VideoMetadata,
+    formatKey: OutputFormatKey = "webm",
+  ) {
     setIsConverting(true);
+    const targetConfig = SUPPORTED_OUTPUT_FORMATS[formatKey];
     try {
       const output = new Output({
-        format: new WebMOutputFormat(),
+        format: targetConfig.getFormat(),
         target: new BufferTarget(),
       });
 
@@ -54,7 +64,8 @@ export function ConverterPage() {
 
       // cenerate new File name (e.g. sample.mp4 -> sample_converted.webm)
       const outputName =
-        sourceMetadata.name.replace(/\.[^/.]+$/, "") + "_converted.webm";
+        sourceMetadata.name.replace(/\.[^/.]+$/, "") +
+        `_converted.${targetConfig.ext}`;
 
       // wrap buffer into a standard File object
       const convertedFile = new File([buffer], outputName, {
@@ -110,10 +121,17 @@ export function ConverterPage() {
             />
           </div>
         )}
+
         {selectedMetadata && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 w-64">
+            <FormatSelector
+              selectedFormat={selectedFormat}
+              onChange={setSelectedFormat}
+              disabled={isConverting}
+            />
+
             <button
-              onClick={() => handleConversion(selectedMetadata)}
+              onClick={() => handleConversion(selectedMetadata, selectedFormat)}
               disabled={isConverting}
               className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-bold rounded-xs transition-colors disabled:opacity-50"
             >
