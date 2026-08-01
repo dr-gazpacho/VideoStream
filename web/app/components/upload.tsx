@@ -1,12 +1,6 @@
 import React, { useState } from "react";
-import {
-  Input,
-  BlobSource,
-  ALL_FORMATS,
-  type AudioCodec,
-  type VideoCodec,
-} from "mediabunny";
 import { useMediaLibrary, type VideoMetadata } from "~/context/media-context";
+import { createVideoMetadataFromFile } from "~/utils/metadata.util"; // Import your helper
 
 interface UploadProps {
   onVideoProcessed: (data: VideoMetadata) => void;
@@ -25,50 +19,7 @@ export function Upload({ onVideoProcessed }: UploadProps) {
     setLoading(true);
 
     try {
-      const input = new Input({
-        source: new BlobSource(file),
-        formats: ALL_FORMATS,
-      });
-
-      const videoDuration = await input.computeDuration();
-      const videoTrack = await input.getPrimaryVideoTrack();
-
-      let dimensions;
-      let rotation;
-      let videoCodec: VideoCodec | null = null;
-
-      if (videoTrack) {
-        const [width, height] = await Promise.all([
-          videoTrack.getDisplayWidth(),
-          videoTrack.getDisplayHeight(),
-        ]);
-        dimensions = { width, height };
-        rotation = videoTrack.rotation ?? 0;
-        videoCodec = await videoTrack.getCodec();
-      }
-
-      const audioTrack = await input.getPrimaryAudioTrack();
-      let audioCodec: AudioCodec | null = null;
-      if (audioTrack) {
-        audioCodec = await audioTrack.getCodec();
-      }
-
-      const id = `clip_${Date.now()}_${file.name}`;
-
-      const processedVideo: VideoMetadata = {
-        id,
-        input,
-        file,
-        duration: videoDuration,
-        name: file.name,
-        size: file.size,
-        dimensions,
-        rotation,
-        videoCodec,
-        audioCodec,
-        hasVideo: !!videoTrack,
-        hasAudio: !!audioTrack,
-      };
+      const processedVideo = await createVideoMetadataFromFile(file);
 
       addClip(processedVideo);
       onVideoProcessed(processedVideo);
