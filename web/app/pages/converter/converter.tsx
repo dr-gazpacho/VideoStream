@@ -48,7 +48,10 @@ export function ConverterPage() {
       });
 
       // extract VideoMetadata/create new Input from the newly created file
-      const outputMetadata = await createVideoMetadataFromFile(convertedFile);
+      const outputMetadata = await createVideoMetadataFromFile(
+        convertedFile,
+        true,
+      );
 
       setConvertedMetadata(outputMetadata);
 

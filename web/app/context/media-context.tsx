@@ -14,6 +14,8 @@ export interface VideoMetadata {
   audioCodec?: AudioCodec | null;
   hasAudio: boolean;
   hasVideo: boolean;
+  // uploaded files are on disk, converted files are in broswer memory only
+  isConvertedInBrowser: boolean;
 }
 
 interface MediaContextType {

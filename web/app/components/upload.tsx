@@ -19,7 +19,7 @@ export function Upload({ onVideoProcessed }: UploadProps) {
     setLoading(true);
 
     try {
-      const processedVideo = await createVideoMetadataFromFile(file);
+      const processedVideo = await createVideoMetadataFromFile(file, false);
 
       addClip(processedVideo);
       onVideoProcessed(processedVideo);

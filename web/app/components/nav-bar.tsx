@@ -7,10 +7,10 @@ export const NavBar: React.FC = () => {
 
   const paths: PathConfig[] = [
     { label: "Home", path: "/" },
-    { label: "About", path: "/about" },
-    { label: "Editor", path: "/editor" },
-    { label: "Converter", path: "/converter" },
     { label: "Upload", path: "/video-upload" },
+    { label: "Converter", path: "/converter" },
+    { label: "Editor", path: "/editor" },
+    { label: "About", path: "/about" },
   ];
 
   return (

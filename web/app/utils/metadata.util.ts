@@ -9,6 +9,7 @@ import type { VideoMetadata } from "~/context/media-context";
 
 export async function createVideoMetadataFromFile(
   file: File,
+  isConvertedInBrowser: boolean,
 ): Promise<VideoMetadata> {
   const input = new Input({
     source: new BlobSource(file),
@@ -51,5 +52,6 @@ export async function createVideoMetadataFromFile(
     audioCodec,
     hasVideo: !!videoTrack,
     hasAudio: !!audioTrack,
+    isConvertedInBrowser: isConvertedInBrowser,
   };
 }
