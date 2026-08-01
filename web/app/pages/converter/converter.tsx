@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useMediaLibrary, type VideoMetadata } from "~/context/media-context";
 import { ReadMetadata } from "~/components/read-metadata";
-import { NavLink } from "react-router";
-import { EmtpyMediaLibrary } from "../../components/empty-media-library";
+import { EmptyMediaLibrary } from "~/components/empty-media-library";
 
 import {
   Input,
@@ -45,7 +44,7 @@ export function ConverterPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-4">
-      <EmtpyMediaLibrary clips={clips} />
+      <EmptyMediaLibrary clips={clips} />
       <div>
         {clips.map((clip) => {
           return (
