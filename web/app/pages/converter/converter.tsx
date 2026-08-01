@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useMediaLibrary, type VideoMetadata } from "~/context/media-context";
 import { ReadMetadata } from "~/components/read-metadata";
+import { NavLink } from "react-router";
+import { type PathConfig } from "~/types";
 
 import {
   Input,
@@ -12,6 +14,7 @@ import {
 
 export function ConverterPage() {
   const { clips } = useMediaLibrary();
+  const hasNoClips = !!!clips.length;
   const [selectedMetadata, setSelectedMetadata] =
     useState<VideoMetadata | null>(null);
   const [convertedFile, setConvertedFile] = useState<Output<
@@ -42,6 +45,40 @@ export function ConverterPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-4">
+      {hasNoClips && (
+        <div className="h-full flex items-center">
+          <NavLink
+            to={"/video-upload"}
+            className={({ isActive, isPending }) =>
+              [
+                "relative px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors duration-150 rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-amber-400",
+                isPending ? "text-amber-300 animate-pulse bg-zinc-900" : "",
+                isActive
+                  ? "text-zinc-950 bg-amber-500 font-bold shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900",
+              ]
+                .filter(Boolean)
+                .join(" ")
+            }
+          >
+            {({ isActive, isPending }) => (
+              <span className="flex items-center gap-2">
+                {/* Active Status Indicator Light */}
+                <span
+                  className={`inline-block w-1.5 h-1.5 rounded-full ${
+                    isActive
+                      ? "bg-zinc-950"
+                      : isPending
+                        ? "bg-amber-400 animate-ping"
+                        : "bg-zinc-700"
+                  }`}
+                />
+                {"Upload"}
+              </span>
+            )}
+          </NavLink>
+        </div>
+      )}
       <div>
         {clips.map((clip) => {
           return (
