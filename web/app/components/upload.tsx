@@ -89,6 +89,7 @@ export function Upload({ onVideoProcessed }: UploadProps) {
       <input
         type="file"
         accept="video/*"
+        multiple
         onChange={handleFileUpload}
         disabled={loading}
         className="block w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-xs file:border-0 file:text-xs file:font-bold file:uppercase file:bg-amber-500 file:text-zinc-950 hover:file:bg-amber-400 cursor-pointer disabled:opacity-50"

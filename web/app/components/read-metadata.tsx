@@ -3,7 +3,8 @@ import type { VideoMetadata } from "~/context/media-context";
 interface ReadMetadataProps {
   metadata: VideoMetadata | null;
   withHeader?: boolean;
-  variant: "large" | "small";
+  variant: "large" | "small" | "card";
+  thumbnailUrl?: string; // Optional prop ready for Mediabunny utility
   handleClick?: (arg: VideoMetadata) => void;
 }
 
@@ -11,6 +12,7 @@ export function ReadMetadata({
   metadata,
   withHeader = true,
   variant,
+  thumbnailUrl,
   handleClick,
 }: ReadMetadataProps) {
   if (!metadata) {
@@ -130,13 +132,125 @@ export function ReadMetadata({
       </div>
     );
 
+  if (variant === "card") {
+    const calculatedBitrate =
+      metadata.duration > 0
+        ? ((metadata.size * 8) / (metadata.duration * 1_000_000)).toFixed(1)
+        : null;
+
+    const fileExtension =
+      metadata.file.type.split("/").pop()?.toUpperCase() ?? "MEDIA";
+
+    return (
+      <div
+        onClick={() => handleClick?.(metadata)}
+        className="w-80 bg-zinc-950 border border-zinc-800 rounded-sm font-mono text-xs overflow-hidden shadow-lg transition-colors hover:border-zinc-700 cursor-pointer group"
+      >
+        {/* Thumbnail Header Placeholder */}
+        <div className="relative aspect-video w-full bg-zinc-900 flex items-center justify-center border-b border-zinc-800/80 overflow-hidden">
+          {thumbnailUrl ? (
+            <img
+              src={thumbnailUrl}
+              alt={metadata.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="flex flex-col items-center gap-1.5 text-zinc-600 group-hover:text-zinc-500 transition-colors">
+              <div className="w-8 h-8 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-950/50">
+                <div className="w-0 h-0 border-y-4 border-y-transparent border-l-[7px] border-l-current ml-0.5" />
+              </div>
+              <span className="text-[9px] uppercase tracking-widest">
+                No Thumbnail
+              </span>
+            </div>
+          )}
+
+          {/* overlay file type in upper left */}
+          <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 text-[9px] bg-zinc-950/90 text-zinc-400 font-bold rounded-xs border border-zinc-800 uppercase">
+            {fileExtension}
+          </span>
+
+          {/* overlay duration in upper right */}
+          <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 text-[10px] bg-zinc-950/90 text-amber-400 font-bold rounded-xs border border-zinc-800">
+            {formattedDuration}s
+          </span>
+        </div>
+
+        <div className="p-3 space-y-2.5">
+          <div>
+            <h4
+              className="font-bold text-amber-500 truncate text-xs"
+              title={metadata.name}
+            >
+              {metadata.name}
+            </h4>
+            <div className="flex justify-between items-center text-[10px] text-zinc-500 mt-0.5">
+              <span>{formattedSize} MB</span>
+              {calculatedBitrate && <span>~{calculatedBitrate} Mbps</span>}
+            </div>
+          </div>
+
+          {/* media specs*/}
+          <div className="p-2 bg-zinc-900/60 border border-zinc-800/60 rounded-xs space-y-1.5 text-[11px]">
+            {/* Resolution */}
+            <div className="flex justify-between">
+              <span className="text-zinc-500">RESOLUTION:</span>
+              <span className="text-zinc-300">
+                {metadata.dimensions
+                  ? `${metadata.dimensions.width}×${metadata.dimensions.height}`
+                  : "N/A"}
+              </span>
+            </div>
+
+            {/* video codec */}
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-500">VIDEO:</span>
+              <span
+                className={`uppercase font-semibold ${
+                  metadata.hasVideo ? "text-zinc-200" : "text-zinc-600"
+                }`}
+              >
+                {metadata.hasVideo
+                  ? (metadata.videoCodec ?? "Present")
+                  : "No Video"}
+              </span>
+            </div>
+
+            {/* audio codec */}
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-500">AUDIO:</span>
+              <span
+                className={`uppercase font-semibold ${
+                  metadata.hasAudio ? "text-zinc-200" : "text-zinc-600"
+                }`}
+              >
+                {metadata.hasAudio
+                  ? (metadata.audioCodec ?? "Present")
+                  : "No Audio"}
+              </span>
+            </div>
+
+            {/* Rotation Warning (only if rotated) */}
+            {metadata.rotation !== undefined && metadata.rotation !== 0 && (
+              <div className="flex justify-between items-center pt-1 border-t border-zinc-800/40">
+                <span className="text-zinc-500">ROTATION:</span>
+                <span className="text-amber-400 font-bold">
+                  {metadata.rotation}°
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (variant === "small")
     return (
       <div
         key={metadata.name}
         draggable
         className="p-3 bg-zinc-900 border border-zinc-800 rounded text-xs text-zinc-300 hover:bg-zinc-700"
-        // this disgusting syntax... if there is no click handlder supplied, noop
         onClick={() => handleClick?.(metadata)}
       >
         <p className="font-bold text-amber-500 truncate">{metadata.name}</p>

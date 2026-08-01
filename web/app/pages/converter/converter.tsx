@@ -45,18 +45,20 @@ export function ConverterPage() {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-4">
       <EmptyMediaLibrary clips={clips} />
-      <div>
-        {clips.map((clip) => {
-          return (
-            <ReadMetadata
-              metadata={clip}
-              withHeader={false}
-              variant="small"
-              handleClick={setSelectedMetadata}
-            />
-          );
-        })}
-      </div>
+      {!!clips.length && (
+        <div className="overflow-visible flex gap-2">
+          {clips.map((clip) => {
+            return (
+              <ReadMetadata
+                metadata={clip}
+                withHeader={false}
+                variant="small"
+                handleClick={setSelectedMetadata}
+              />
+            );
+          })}
+        </div>
+      )}
       <button
         onClick={() => {
           if (selectedMetadata) handleConversion(selectedMetadata.input);
@@ -68,7 +70,7 @@ export function ConverterPage() {
         <ReadMetadata
           metadata={selectedMetadata}
           withHeader={false}
-          variant="large"
+          variant="card"
         />
       )}
     </div>
