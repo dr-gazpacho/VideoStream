@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { type VideoMetadata } from "~/context/media-context";
 import { getThumbnails } from "~/utils/thumbnaill.util";
 
-// Single Thumbnail Component
 export function ThumbnailItem({
   wrappedCanvas,
 }: {
@@ -17,11 +16,11 @@ export function ThumbnailItem({
     const ctx = targetCanvas.getContext("2d");
     if (!ctx) return;
 
-    // Set target canvas dimensions to match the thumbnail
+    // set target canvas dimensions to match the thumbnail
     targetCanvas.width = wrappedCanvas.canvas.width;
     targetCanvas.height = wrappedCanvas.canvas.height;
 
-    // Draw the Mediabunny canvas onto the React-managed canvas
+    // draw the Mediabunny canvas onto the React-managed canvas
     ctx.drawImage(wrappedCanvas.canvas, 0, 0);
   }, [wrappedCanvas]);
 
@@ -38,7 +37,6 @@ export function ThumbnailItem({
   );
 }
 
-// Main Component
 export function ThumbnailStrip({
   videoMetadata,
 }: {
