@@ -94,16 +94,21 @@ export function ConverterPage() {
       <EmptyMediaLibrary clips={clips} />
 
       {!!clips.length && (
-        <div className="overflow-visible flex gap-2">
-          {clips.map((clip) => (
-            <ReadMetadata
-              key={clip.id}
-              metadata={clip}
-              withHeader={false}
-              variant="small"
-              handleClick={setSelectedMetadata}
-            />
-          ))}
+        <div className="w-full bg-zinc-800 border border-zinc-800 rounded-sm p-1">
+          <div className="relative [mask-image:linear-gradient(to_right,transparent,black_24px,black_calc(100%-24px),transparent)]">
+            <div className="flex gap-2 overflow-x-auto py-1 px-6 scrollbar-none">
+              {clips.map((clip) => (
+                <div key={clip.id} className="shrink-0">
+                  <ReadMetadata
+                    metadata={clip}
+                    withHeader={false}
+                    variant="small"
+                    handleClick={setSelectedMetadata}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
