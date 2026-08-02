@@ -14,6 +14,8 @@ to do:
 - add some sort of playback on cavas element (GONNA BE HARD)
 - add some sort of state to converter runs so that when one is done the progress flips to done and (if you add the media or start a new transcode) the trancode clears
 
+- try implementing this bs: https://mediabunny.dev/examples w
+
 ## 8/1
 
 You can upload a file from disk and then convert it into another format. The converted file currently only lives in browser memory. It is stupid long term probably, but it is convenient right now
