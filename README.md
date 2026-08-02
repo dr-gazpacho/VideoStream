@@ -5,10 +5,13 @@
 
 to do:
 
-- create more robust conversion options
-- show "percentage complete"
 - allow for download or add to working media lib
-- move function defs into utils so the whole "make an input" and "convert" can be more portable
+- selective "add to media lib or download"
+- add a nice header or title or something to explain whats happening, maybe placeholders
+- more transcoding/compressing/processing options (read the docs)
+- thumbnails
+  - add to VideoMetadata ( as new URL? how does media bunny do it...)
+- add some sort of playback on cavas element
 
 ## 8/1
 
