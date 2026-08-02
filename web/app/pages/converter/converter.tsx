@@ -13,6 +13,7 @@ import {
   type OutputFormatKey,
 } from "~/utils/metadata.util";
 import { Output, BufferTarget, Conversion } from "mediabunny";
+import { ThumbnailStrip } from "~/components/thumbnail";
 
 export function ConverterPage() {
   const { clips, addClip } = useMediaLibrary();
@@ -163,6 +164,7 @@ export function ConverterPage() {
           </div>
         )}
       </div>
+      {selectedMetadata && <ThumbnailStrip videoMetadata={selectedMetadata} />}
     </div>
   );
 }
