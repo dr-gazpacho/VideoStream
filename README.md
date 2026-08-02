@@ -5,13 +5,13 @@
 
 to do:
 
-- allow for download or add to working media lib
-- selective "add to media lib or download"
+- selective "download" - might be hard... start with streams api
 - add a nice header or title or something to explain whats happening, maybe placeholders
 - more transcoding/compressing/processing options (read the docs)
 - thumbnails
-  - add to VideoMetadata ( as new URL? how does media bunny do it...)
-- add some sort of playback on cavas element
+  - add to VideoMetadata ( as new URL? add the canvas? how does media bunny do it...)
+  - allow to pick thumbnail when you add to library?
+- add some sort of playback on cavas element (GONNA BE HARD)
 
 ## 8/1
 
