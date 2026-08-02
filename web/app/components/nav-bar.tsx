@@ -22,7 +22,7 @@ export const NavBar: React.FC = () => {
         <div className="flex items-center justify-between h-14">
           {/* logo */}
           <div className="flex items-center gap-3">
-            <div className="h-4 w-4 bg-amber-500 rounded-sm shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+            <div className="h-4 w-4 bg-lime-500 rounded-sm shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
             <span className="font-bold tracking-wider text-xs uppercase text-zinc-200">
               Video // Stream
             </span>
@@ -36,12 +36,12 @@ export const NavBar: React.FC = () => {
                   end={item.path === "/"}
                   className={({ isActive, isPending }) =>
                     [
-                      "relative px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors duration-150 rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-amber-400",
+                      "relative px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors duration-150 rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-lime-400",
                       isPending
-                        ? "text-amber-300 animate-pulse bg-zinc-900"
+                        ? "text-lime-300 animate-pulse bg-zinc-900"
                         : "",
                       isActive
-                        ? "text-zinc-950 bg-amber-500 font-bold shadow-sm"
+                        ? "text-zinc-950 bg-lime-500 font-bold shadow-sm"
                         : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900",
                     ]
                       .filter(Boolean)
@@ -56,7 +56,7 @@ export const NavBar: React.FC = () => {
                           isActive
                             ? "bg-zinc-950"
                             : isPending
-                              ? "bg-amber-400 animate-ping"
+                              ? "bg-lime-400 animate-ping"
                               : "bg-zinc-700"
                         }`}
                       />
@@ -75,7 +75,7 @@ export const NavBar: React.FC = () => {
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-menu"
               aria-label="Toggle navigation menu"
-              className="p-2 rounded-sm bg-zinc-900 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="p-2 rounded-sm bg-zinc-900 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 focus:outline-none focus:ring-1 focus:ring-lime-500"
             >
               <svg
                 className="h-5 w-5"
@@ -117,9 +117,9 @@ export const NavBar: React.FC = () => {
               className={({ isActive, isPending }) =>
                 [
                   "block px-3 py-2 rounded-sm text-xs font-semibold uppercase tracking-wider transition-colors",
-                  isPending ? "text-amber-300 bg-zinc-800 animate-pulse" : "",
+                  isPending ? "text-lime-300 bg-zinc-800 animate-pulse" : "",
                   isActive
-                    ? "text-zinc-950 bg-amber-500 font-bold"
+                    ? "text-zinc-950 bg-lime-500 font-bold"
                     : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800",
                 ]
                   .filter(Boolean)

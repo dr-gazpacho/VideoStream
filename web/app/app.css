@@ -22,6 +22,6 @@ body {
 }
 
 ::selection {
-  background-color: var(--color-amber-500);
+  background-color: var(--color-lime-500);
   color: var(--color-zinc-950);
 }

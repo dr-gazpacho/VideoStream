@@ -1,4 +1,5 @@
 import type { VideoMetadata } from "~/context/media-context";
+import { useMediaLibrary } from "~/context/media-context";
 
 interface ReadMetadataProps {
   metadata: VideoMetadata | null;
@@ -15,6 +16,12 @@ export function ReadMetadata({
   thumbnailUrl,
   handleClick,
 }: ReadMetadataProps) {
+  const { addClip, clips } = useMediaLibrary();
+
+  const isInLibrary = !!clips.filter(
+    (clip) => metadata && clip.id === metadata.id,
+  ).length;
+
   if (!metadata) {
     return (
       <div className="p-4 bg-zinc-950 border border-zinc-800/80 rounded-sm text-zinc-600 text-xs font-mono uppercase tracking-widest flex items-center gap-2">
@@ -34,8 +41,8 @@ export function ReadMetadata({
         {/* Header with track indicators */}
         <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
           {withHeader && (
-            <h3 className="text-xs uppercase tracking-wider text-amber-500 font-bold flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
+            <h3 className="text-xs uppercase tracking-wider text-lime-500 font-bold flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-lime-500 rounded-full animate-pulse" />
               // File Inspector
             </h3>
           )}
@@ -44,7 +51,7 @@ export function ReadMetadata({
             <span
               className={`px-1.5 py-0.5 text-[10px] uppercase font-bold rounded-xs ${
                 metadata.hasVideo
-                  ? "bg-zinc-800 text-amber-400 border border-amber-500/30"
+                  ? "bg-zinc-800 text-lime-400 border border-lime-500/30"
                   : "bg-zinc-900 text-zinc-600 border border-zinc-800"
               }`}
             >
@@ -53,7 +60,7 @@ export function ReadMetadata({
             <span
               className={`px-1.5 py-0.5 text-[10px] uppercase font-bold rounded-xs ${
                 metadata.hasAudio
-                  ? "bg-zinc-800 text-amber-400 border border-amber-500/30"
+                  ? "bg-zinc-800 text-lime-400 border border-lime-500/30"
                   : "bg-zinc-900 text-zinc-600 border border-zinc-800"
               }`}
             >
@@ -84,7 +91,7 @@ export function ReadMetadata({
             </div>
             <div className="flex justify-between">
               <span className="text-zinc-500">DURATION:</span>
-              <span className="text-amber-400 font-bold">
+              <span className="text-lime-400 font-bold">
                 {formattedDuration}s
               </span>
             </div>
@@ -116,7 +123,7 @@ export function ReadMetadata({
             {metadata.rotation !== undefined && metadata.rotation !== 0 && (
               <div className="flex justify-between">
                 <span className="text-zinc-500">ROTATION:</span>
-                <span className="text-amber-400">{metadata.rotation}°</span>
+                <span className="text-lime-400">{metadata.rotation}°</span>
               </div>
             )}
 
@@ -129,6 +136,21 @@ export function ReadMetadata({
             </div>
           </div>
         </div>
+
+        {!isInLibrary && (
+          <div className="pt-2 flex justify-end">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                addClip(metadata);
+              }}
+              className="px-3 py-1.5 bg-lime-500/10 hover:bg-lime-500/20 text-lime-400 border border-lime-500/30 rounded-xs text-xs font-semibold uppercase tracking-wider transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <span className="text-sm line-none">+</span> Add to Library
+            </button>
+          </div>
+        )}
       </div>
     );
 
@@ -171,7 +193,7 @@ export function ReadMetadata({
           </span>
 
           {/* overlay duration in upper right */}
-          <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 text-[10px] bg-zinc-950/90 text-amber-400 font-bold rounded-xs border border-zinc-800">
+          <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 text-[10px] bg-zinc-950/90 text-lime-400 font-bold rounded-xs border border-zinc-800">
             {formattedDuration}s
           </span>
         </div>
@@ -179,7 +201,7 @@ export function ReadMetadata({
         <div className="p-3 space-y-2.5">
           <div>
             <h4
-              className="font-bold text-amber-500 truncate text-xs"
+              className="font-bold text-lime-500 truncate text-xs"
               title={metadata.name}
             >
               {metadata.name}
@@ -234,12 +256,24 @@ export function ReadMetadata({
             {metadata.rotation !== undefined && metadata.rotation !== 0 && (
               <div className="flex justify-between items-center pt-1 border-t border-zinc-800/40">
                 <span className="text-zinc-500">ROTATION:</span>
-                <span className="text-amber-400 font-bold">
+                <span className="text-lime-400 font-bold">
                   {metadata.rotation}°
                 </span>
               </div>
             )}
           </div>
+          {!isInLibrary && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                addClip(metadata);
+              }}
+              className="w-full py-1.5 bg-zinc-900 hover:bg-zinc-800 text-lime-400 border border-zinc-800 hover:border-lime-500/40 rounded-xs text-[11px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1 cursor-pointer"
+            >
+              <span>+</span> Add to Library
+            </button>
+          )}
         </div>
       </div>
     );
@@ -250,11 +284,26 @@ export function ReadMetadata({
       <div
         key={metadata.name}
         draggable
-        className="p-3 bg-zinc-900 border border-zinc-800 rounded text-xs text-zinc-300 hover:bg-zinc-700"
+        className="p-3 bg-zinc-900 border border-zinc-800 rounded text-xs text-zinc-300 hover:bg-zinc-700 flex items-center justify-between gap-2"
         onClick={() => handleClick?.(metadata)}
       >
-        <p className="font-bold text-amber-500 truncate">{metadata.name}</p>
-        <p className="text-zinc-500">{metadata.duration.toFixed(1)}s</p>
+        <div className="truncate min-w-0">
+          <p className="font-bold text-lime-500 truncate">{metadata.name}</p>
+          <p className="text-zinc-500">{metadata.duration.toFixed(1)}s</p>
+        </div>
+        {!isInLibrary && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              addClip(metadata);
+            }}
+            className="shrink-0 px-2 py-1 bg-zinc-800 hover:bg-lime-500 hover:text-zinc-950 text-lime-400 border border-zinc-700 rounded text-[10px] font-bold uppercase transition-colors cursor-pointer"
+            title="Add to Library"
+          >
+            + Add
+          </button>
+        )}
       </div>
     );
 }

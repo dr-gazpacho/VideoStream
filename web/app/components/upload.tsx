@@ -8,7 +8,6 @@ interface UploadProps {
 
 export function Upload({ onVideoProcessed }: UploadProps) {
   const [loading, setLoading] = useState(false);
-  const { addClip } = useMediaLibrary();
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -21,7 +20,6 @@ export function Upload({ onVideoProcessed }: UploadProps) {
     try {
       const processedVideo = await createVideoMetadataFromFile(file, false);
 
-      addClip(processedVideo);
       onVideoProcessed(processedVideo);
     } catch (err) {
       console.error("Failed to inspect video metadata:", err);
@@ -43,11 +41,11 @@ export function Upload({ onVideoProcessed }: UploadProps) {
         multiple
         onChange={handleFileUpload}
         disabled={loading}
-        className="block w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-xs file:border-0 file:text-xs file:font-bold file:uppercase file:bg-amber-500 file:text-zinc-950 hover:file:bg-amber-400 cursor-pointer disabled:opacity-50"
+        className="block w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-xs file:border-0 file:text-xs file:font-bold file:uppercase file:bg-lime-500 file:text-zinc-950 hover:file:bg-lime-400 cursor-pointer disabled:opacity-50"
       />
       {loading && (
-        <p className="mt-2 text-xs text-amber-400 animate-pulse flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+        <p className="mt-2 text-xs text-lime-400 animate-pulse flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-lime-400 animate-ping" />
           Analyzing tracks...
         </p>
       )}

@@ -139,7 +139,7 @@ export function ConverterPage() {
             <button
               onClick={() => handleConversion(selectedMetadata, selectedFormat)}
               disabled={isConverting}
-              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-bold rounded-xs transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-lime-500 hover:bg-lime-400 text-zinc-950 font-mono text-xs font-bold rounded-xs transition-colors disabled:opacity-50"
             >
               {isConverting ? "Converting..." : "Run simple conversion"}
             </button>
