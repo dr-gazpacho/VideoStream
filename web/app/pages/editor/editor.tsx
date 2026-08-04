@@ -11,7 +11,7 @@ export function EditorPage() {
       </h2>
       <div className="grid grid-cols-4 gap-4">
         {clips.map((clip) => (
-          <ReadMetadata metadata={clip} variant="small" />
+          <ReadMetadata key={clip.id} metadata={clip} variant="small" />
         ))}
       </div>
     </div>

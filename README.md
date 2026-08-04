@@ -12,6 +12,7 @@ to do:
   - add to VideoMetadata ( as new URL? add the canvas? how does media bunny do it...)
   - allow to pick thumbnail when you add to library?
 - add some sort of playback on cavas element (GONNA BE HARD)
+- add some sort of state to converter runs so that when one is done the progress flips to done and (if you add the media or start a new transcode) the trancode clears
 
 ## 8/1
 

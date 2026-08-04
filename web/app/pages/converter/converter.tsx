@@ -70,7 +70,7 @@ export function ConverterPage() {
 
       // wrap buffer into a standard File object
       const convertedFile = new File([buffer], outputName, {
-        type: "video/webm",
+        type: targetConfig.mime
       });
 
       // extract VideoMetadata/create new Input from the newly created file
